@@ -1,0 +1,19 @@
+{
+    "name": "malekfar/provision",
+    "description": "provision and route control",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Administrator",
+            "email": "admin@example.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Malekfar\\Provision\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
