@@ -36,13 +36,28 @@ class Provision
     private function modelBinding($arguments)
     {
         $argNumber = 0;
+        $reflection = new \ReflectionMethod($this->className, $this->method);
         foreach ($arguments as $argument) {
-            if(is_object($argument))
+            if(is_object($argument)){
+                $argumentClass = new \ReflectionClass(get_class($argument));
+                if(
+                    ($reflection->getParameters()[$argNumber]->getClass()->getShortName() == $argumentClass->getShortName()) &&
+                    ($reflection->getParameters()[$argNumber]->getClass()->getName() != $argumentClass->getName())
+                ) {
+                    $castedArg = $reflection->getParameters()[$argNumber]->getClass()->getName();
+                    $model = new $castedArg;
+                    $castedClass = $model::find($argument->id);
+                    app()->bind($castedArg, function () use ($castedClass) {
+                        return $castedClass;
+                    });
+                    $argNumber++;
+                    continue;
+                }
                 app()->bind(get_class($argument), function () use($argument) {
                     return $argument;
                 });
+            }
             else {
-                $reflection = new \ReflectionMethod($this->className, $this->method);
                 $parameters = $reflection->getParameters();
                 if(!isset($parameters[$argNumber]))
                     continue;
