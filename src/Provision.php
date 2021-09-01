@@ -23,11 +23,11 @@ class Provision
             $controller = new $this->className;
             return app()->call([$controller, $this->method]);
         } catch (ValidationException $e) {
-            $errors = [];
-            foreach ($e->errors() as $error)
-                $errors [] = $error[count($error)-1];
+            $errors = ['message' => $e->getMessage()];
+            foreach ($e->errors() as $key => $error)
+                $errors ['errors'][$key][] = $error[count($error)-1];
 
-            return response()->json($errors, 422);
+            return response()->json($errors, $e->status);
         } catch (\Exception $e) {
             dd($e);
         }
