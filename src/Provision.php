@@ -3,6 +3,7 @@
 
 namespace Malekfar\Provision;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
 
 class Provision
@@ -20,7 +21,17 @@ class Provision
         $this->method = $explodedName[1];
         $this->modelBinding($arguments);
         try {
-            $controller = new $this->className;
+            try {
+                $controller = new $this->className;
+            } catch (\ArgumentCountError $e) {
+                $reflection = new \ReflectionMethod($this->className, '__construct');
+                $parameters = $reflection->getParameters();
+                $array = [];
+                foreach($parameters as $parameter)
+                    $array [] = App::make($parameter->getClass()->getName());
+                
+                $controller = new $this->className(...$array);
+            }
             return app()->call([$controller, $this->method]);
         } catch (ValidationException $e) {
             $errors = ['message' => $e->getMessage()];
